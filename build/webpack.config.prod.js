@@ -1,5 +1,5 @@
 'use strict'
-const path = require('path')
+const utils = require('./utils')
 const config = require('../config')
 const merge = require('webpack-merge')
 const webpack = require('webpack')
@@ -14,11 +14,36 @@ let webpackConfig = merge(baseWebpackConfig, {
     devtool: config.build.productionSourceMap ? config.build.devtool : false,
     output: {
         filename: '[name].[chunkhash].js',
-        path: path.resolve(__dirname, '../dist'),
-        publicPath: '/'
+        path: config.build.assetsRoot,
+        filename: utils.assetsPath('js/[name].[chunkhash].js'),
+        chunkFilename: utils.assetsPath('js/[id].[chunkhash].js')
+    },
+    optimization: {
+        splitChunks: {
+            cacheGroups: {
+                    vendors: {
+                        test: /[\\/]node_modules[\\/]/,
+                        chunks: 'initial',
+                        name: 'vendors',
+                        minChunks: 2
+                    },
+                    'async-vendors': {
+                        test: /[\\/]node_modules[\\/]/,
+                        minChunks: 2,
+                        chunks: 'async',
+                        name: 'async-vendors'
+                    }
+            }
+        },
+        runtimeChunk: { name: 'runtime' }
     },
     plugins: [
-        new CleanWebpackPlugin(['dist'], { root: path.resolve(__dirname , '..') }),
+        // 删除dist下所有目录，保留monitor.html
+        // 新版CleanWebpackPlugin会根据output中的path定位打包文件夹，需要path use full path. path.join(process.cwd(), 'build/**/*')
+        new CleanWebpackPlugin({
+            dry: false, // true 为模拟删除
+            cleanOnceBeforeBuildPatterns:['**/*', '!monitor.html']
+        }),
         new webpack.HashedModuleIdsPlugin(),
         new UglifyJSPlugin(),
         new webpack.DefinePlugin({

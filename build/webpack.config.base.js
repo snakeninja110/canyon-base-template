@@ -1,4 +1,3 @@
-const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
@@ -40,18 +39,5 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin()
-    ],
-    optimization: {
-        splitChunks: {
-            cacheGroups: {
-                vendor: {
-                    test: /[\\/]node_modules[\\/]/,
-                    name: 'vendors',
-                    chunks: 'all',
-                    minChunks: 1
-                }
-            }
-        },
-        runtimeChunk: 'single'
-    }
+    ]
 }
